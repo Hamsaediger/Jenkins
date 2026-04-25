@@ -4,8 +4,9 @@ pipeline {
     environment {
         // Define environment variables
         IMAGE_NAME = 'my-static-app'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials' // Update with your Jenkins credentials ID
-        DOCKER_REGISTRY = 'your-dockerhub-username'      // Update with your Docker Hub username
+        DOCKER_USER = 'hamsaediger'
+        DOCKER_PASS = 'Hamsa@1466'
+        DOCKER_REGISTRY = 'hamsaediger'
     }
 
     stages {
@@ -30,12 +31,15 @@ pipeline {
             steps {
                 script {
                     echo "Pushing Docker image to registry..."
-                    // Login and push to registry using Jenkins credentials
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
-                        dockerImage.push()
-                        // Optional: Push the 'latest' tag as well
-                        dockerImage.push('latest')
-                    }
+                    // Login to Docker Hub using the credentials provided
+                    sh "echo '${DOCKER_PASS}' | docker login -u '${DOCKER_USER}' --password-stdin"
+                    
+                    // Push the image tagged with the build ID
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.BUILD_ID}"
+                    
+                    // Tag and push 'latest'
+                    sh "docker tag ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.BUILD_ID} ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
                 }
             }
         }
