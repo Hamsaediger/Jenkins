@@ -21,8 +21,8 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image ${IMAGE_NAME}..."
-                    // Build the Docker image
-                    dockerImage = docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.BUILD_ID}")
+                    // Build the Docker image using sh command
+                    sh "docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.BUILD_ID} ."
                 }
             }
         }
